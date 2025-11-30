@@ -1,21 +1,19 @@
-import util.Connexio;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Scanner;
 
 import dao.ProducteDAO;
+import dao.ClientDAO;
 import model.Producte;
+import model.Client;
 
 public class App {
-    private static Connexio connexio;
     private static ProducteDAO producteDAO;
+    private static ClientDAO clientDAO;
 
     public static void main(String[] args) {
         producteDAO = new ProducteDAO();
+        clientDAO = new ClientDAO();
         Scanner sc = new Scanner(System.in);
         int opcio;
         do {
@@ -32,7 +30,7 @@ public class App {
                     menuProducte(sc);
                     break;
                 case 2:
-                    // Cridar ClientDAO
+                    menuClients(sc);
                     break;
                 case 3:
                     // Crear Comanda amb transacció
@@ -138,4 +136,82 @@ public class App {
             }
         } while (opcio != 0);
     }
+
+    public static void menuClients(Scanner sc) {
+        int opcio;
+        do {
+            System.out.println("\n===== GESTIÓ DE CLIENTS =====");
+            System.out.println("1. Inserir Client");
+            System.out.println("2. Llistar Clients");
+            System.out.println("3. Actualitzar Client");
+            System.out.println("4. Eliminar Client");
+            System.out.println("0. Tornar al menú principal");
+            System.out.print("Opció: ");
+            opcio = sc.nextInt();
+            try {
+                switch (opcio) {
+                    case 1:
+                        System.out.print("Nom del client: ");
+                        String nom = sc.next();
+                        System.out.print("Correu del client: ");
+                        String email = sc.next();
+                        Client c = new Client();
+                        c.setName(nom);
+                        c.setEmail(email);
+                        clientDAO.inserir(c);
+                        System.out.println("Client inserit correctament.");
+                        break;
+                    case 2:
+                        List<Client> clients = clientDAO.llistar();
+                        for (Client cli : clients) {
+                            System.out.println("ID: " + cli.getId() + ", Nom: " + cli.getName() +
+                                    ", Correu: " + cli.getEmail());
+                        }
+                        break;
+                    case 3:
+                        System.out.print("ID del client a actualitzar: ");
+                        int idAct = sc.nextInt();
+                        sc.nextLine(); // consume newline
+                        Client cliActual = clientDAO.obtenirPerId(idAct);
+                        if (cliActual == null) {
+                            System.out.println("Client no trobat.");
+                            break;
+                        }
+                        System.out.print(
+                                "Nou nom del client (actual: " + cliActual.getName() + ") [Enter per mantenir]: ");
+                        String nouNom = sc.nextLine();
+                        if (nouNom.isEmpty()) {
+                            nouNom = cliActual.getName();
+                        }
+                        System.out.print(
+                                "Nou correu del client (actual: " + cliActual.getEmail() + ") [Enter per mantenir]: ");
+                        String nouEmail = sc.nextLine();
+                        if (nouEmail.isEmpty()) {
+                            nouEmail = cliActual.getEmail();
+                        }
+                        Client cliAct = new Client();
+                        cliAct.setId(cliActual.getId());
+                        cliAct.setName(nouNom);
+                        cliAct.setEmail(nouEmail);
+                        clientDAO.actualitzar(cliAct);
+                        System.out.println("Client actualitzat correctament.");
+                        break;
+                    case 4:
+                        System.out.print("ID del client a eliminar: ");
+                        int idElim = sc.nextInt();
+                        clientDAO.eliminar(idElim);
+                        System.out.println("Client eliminat correctament.");
+                        break;
+                    case 0:
+                        System.out.println("Tornant al menú principal...");
+                        break;
+                    default:
+                        System.out.println("Opció no vàlida.");
+                }
+            } catch (SQLException e) {
+                System.out.println("Error en l'operació: " + e.getMessage());
+            }
+        } while (opcio != 0);
+    }
+
 }
