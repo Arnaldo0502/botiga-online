@@ -7,6 +7,8 @@ import model.LiniaComanda;
 import java.sql.*;
 
 public class ComandaDAO {
+    private DescompteDAO descompteDAO = new DescompteDAO();
+
     public void crearComanda(Comanda comanda) throws SQLException {
         Connection connexio = null;
         try {
@@ -74,7 +76,7 @@ public class ComandaDAO {
             // Intentar aplicar descomptes
             try {
                 
-                total -= aplicarDescomptes(connexio, comandaId);
+                total -= descompteDAO.aplicarDescomptes(connexio, comandaId);
 
             } catch (Exception e) {
                 System.out.println("Error aplicant descomptes: " + e.getMessage());
@@ -84,8 +86,8 @@ public class ComandaDAO {
             // actualitzar total de la comanda
             String actualitzarTotalSQL = "UPDATE Comandes SET total = ? WHERE id = ?";
             PreparedStatement psActualitzarTotal = connexio.prepareStatement(actualitzarTotalSQL);
-            psActualitzarTotal.setDouble(1, comanda.getTotal());
-            psActualitzarTotal.setInt(2, comanda.getId());
+            psActualitzarTotal.setDouble(1, total);  // Usar la variable total actualizada
+            psActualitzarTotal.setInt(2, comandaId);  // Usar comandaId en lugar de comanda.getId()
             psActualitzarTotal.executeUpdate();
 
             connexio.commit();
@@ -104,39 +106,5 @@ public class ComandaDAO {
         }
     }
 
-    private double aplicarDescomptes(Connection conn, int comandaId) throws SQLException {
-        double totalDescompte = 0;
-
-        String sql = "SELECT lc.quantitat, lc.preuUnitari, d.tipus, d.valor " +
-                "FROM LiniesComanda lc " +
-                "JOIN Descomptes d ON lc.producte_id = d.producte_id " +
-                "WHERE lc.comanda_id = ?";
-
-        PreparedStatement ps = conn.prepareStatement(sql);
-        ps.setInt(1, comandaId);
-
-        ResultSet rs = ps.executeQuery();
-
-        while (rs.next()) {
-            int quantitat = rs.getInt("quantitat");
-            double preuUnitari = rs.getDouble("preuUnitari");
-            String tipus = rs.getString("tipus");
-            double valor = rs.getDouble("valor");
-
-            double subtotal = quantitat * preuUnitari;
-            double descompte = 0;
-
-            if (tipus.equals("%")) {
-                descompte = subtotal * (valor / 100.0);
-            } else if (tipus.equals("€")) {
-                descompte = valor * quantitat;
-            }
-
-            totalDescompte += descompte;
-        }
-
-        System.out.println("Descompte aplicat: -" + totalDescompte + " €");
-        return totalDescompte;
-    }
-
+    
 }
