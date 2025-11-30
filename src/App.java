@@ -1,19 +1,25 @@
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 
 import dao.ProducteDAO;
 import dao.ClientDAO;
+import dao.ComandaDAO;
 import model.Producte;
 import model.Client;
+import model.Comanda;
+import model.LiniaComanda;
 
 public class App {
     private static ProducteDAO producteDAO;
     private static ClientDAO clientDAO;
+    private static ComandaDAO comandaDAO;
 
     public static void main(String[] args) {
         producteDAO = new ProducteDAO();
         clientDAO = new ClientDAO();
+        comandaDAO = new ComandaDAO();
         Scanner sc = new Scanner(System.in);
         int opcio;
         do {
@@ -33,7 +39,7 @@ public class App {
                     menuClients(sc);
                     break;
                 case 3:
-                    // Crear Comanda amb transacció
+                    crearComandaMain(sc);
                     break;
                 case 4:
                     // Consultar JOIN
@@ -86,12 +92,14 @@ public class App {
                             System.out.println("Producte no trobat.");
                             break;
                         }
-                        System.out.print("Nou nom del producte (actual: " + prodActual.getNom() + ") [Enter per mantenir]: ");
+                        System.out.print(
+                                "Nou nom del producte (actual: " + prodActual.getNom() + ") [Enter per mantenir]: ");
                         String nouNom = sc.nextLine();
                         if (nouNom.isEmpty()) {
                             nouNom = prodActual.getNom();
                         }
-                        System.out.print("Nou preu del producte (actual: " + prodActual.getPreu() + ") [Enter per mantenir]: ");
+                        System.out.print(
+                                "Nou preu del producte (actual: " + prodActual.getPreu() + ") [Enter per mantenir]: ");
                         String preuStr = sc.nextLine();
                         double nouPreu = prodActual.getPreu();
                         if (!preuStr.isEmpty()) {
@@ -101,7 +109,8 @@ public class App {
                                 System.out.println("Preu no vàlid, mantenint actual.");
                             }
                         }
-                        System.out.print("Nou estoc del producte (actual: " + prodActual.getEstoc() + ") [Enter per mantenir]: ");
+                        System.out.print("Nou estoc del producte (actual: " + prodActual.getEstoc()
+                                + ") [Enter per mantenir]: ");
                         String estocStr = sc.nextLine();
                         int nouEstoc = prodActual.getEstoc();
                         if (!estocStr.isEmpty()) {
@@ -212,6 +221,42 @@ public class App {
                 System.out.println("Error en l'operació: " + e.getMessage());
             }
         } while (opcio != 0);
+    }
+
+    public static void crearComandaMain(Scanner sc) {
+        try {
+            System.out.print("Id del client: ");
+            int clientId = sc.nextInt();
+            Date data = new Date(System.currentTimeMillis());
+            Comanda comanda = new Comanda();
+            comanda.setClientId(clientId);
+            comanda.setData(data);
+
+            double totalComanda = 0.0;
+            System.out.print("Id del producte: ");
+            int producteId = sc.nextInt();
+            System.out.print("Quantitat: ");
+            int quantitat = sc.nextInt();
+
+            Producte prod = producteDAO.obtenirPerId(producteId);
+            if (prod == null) {
+                System.out.println("Producte no trobat.");
+                return;
+            }
+
+            double preuUnitari = prod.getPreu();
+            LiniaComanda linia = new LiniaComanda();
+            linia.setProducteId(producteId);
+            linia.setQuantitat(quantitat);
+            linia.setPreuUnitari(preuUnitari);
+            comanda.addLinia(linia);
+
+            totalComanda += quantitat * preuUnitari;
+
+            comanda.setTotal(totalComanda);
+            comandaDAO.crearComanda(comanda);
+        } catch (SQLException e) {
+        }
     }
 
 }

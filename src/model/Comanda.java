@@ -1,21 +1,29 @@
 package model;
+
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Comanda {
     private int id;
     private int clientId;
     private Date data;
     private double total;
+    private List<LiniaComanda> linies;
 
     // Constructors
-    public Comanda() {}
+    public Comanda() {
+        linies = new ArrayList<>();
+    }
 
     public Comanda(int id, int clientId, Date data, double total) {
         this.id = id;
         this.clientId = clientId;
         this.data = data;
         this.total = total;
+        this.linies = new ArrayList<>();
     }
+
     // Getters and Setters
     public int getId() {
         return id;
@@ -49,6 +57,16 @@ public class Comanda {
         this.total = total;
     }
 
-    // Getters and Setters
-    
+    public List<LiniaComanda> getLinies() {
+        return linies;
+    }
+
+    public void setLinies(List<LiniaComanda> linies) {
+        this.linies = linies;
+    }
+
+    public void addLinia(LiniaComanda linia) {
+        this.linies.add(linia);
+    }
+
 }
