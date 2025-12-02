@@ -5,12 +5,14 @@ import model.Comanda;
 import model.LiniaComanda;
 
 import java.sql.*;
+import java.util.Scanner;
 
 public class ComandaDAO {
     private DescompteDAO descompteDAO = new DescompteDAO();
 
     public void crearComanda(Comanda comanda) throws SQLException {
         Connection connexio = null;
+        Scanner scanner = new Scanner(System.in);
         try {
             connexio = Connexio.getConnection();
             connexio.setAutoCommit(false);
@@ -72,22 +74,47 @@ public class ComandaDAO {
 
                 total += linia.getQuantitat() * linia.getPreuUnitari();
             }
-            Savepoint sp = connexio.setSavepoint("DespresLinies");
-            // Intentar aplicar descomptes
-            try {
-                
-                total -= descompteDAO.aplicarDescomptes(connexio, comandaId);
 
-            } catch (Exception e) {
-                System.out.println("Error aplicant descomptes: " + e.getMessage());
-                connexio.rollback(sp); 
+            Savepoint sp;
+            System.out.println("Vols aplicar descomptes a la comanda? (s/n)");
+
+            char resposta;
+
+            while (true) {
+                String entrada = scanner.nextLine().trim();
+
+                // evitar vacío
+                if (entrada.isEmpty()) {
+                    System.out.println("Entrada buida. Torna-ho a intentar: (s/n)");
+                    continue;
+                }
+                resposta = Character.toLowerCase(entrada.charAt(0));
+                // validar respuesta
+                if (resposta == 's' || resposta == 'n') {
+                    break;
+                }
+                System.out.println("Opció no vàlida. Introdueix 's' o 'n'.");
             }
+
+            // si es 's', aplicar descuentos
+            if (resposta == 's') {
+                sp = connexio.setSavepoint("AbansDescomptes");
+
+                try {
+                    total -= descompteDAO.aplicarDescomptes(connexio, comandaId);
+                } catch (Exception e) {
+                    System.out.println("Error aplicant descomptes: " + e.getMessage());
+                    connexio.rollback(sp);
+                }
+            }
+
+            // si es 'n', continuar sin descuento
 
             // actualitzar total de la comanda
             String actualitzarTotalSQL = "UPDATE Comandes SET total = ? WHERE id = ?";
             PreparedStatement psActualitzarTotal = connexio.prepareStatement(actualitzarTotalSQL);
-            psActualitzarTotal.setDouble(1, total);  // Usar la variable total actualizada
-            psActualitzarTotal.setInt(2, comandaId);  // Usar comandaId en lugar de comanda.getId()
+            psActualitzarTotal.setDouble(1, total); // Usar la variable total actualizada
+            psActualitzarTotal.setInt(2, comandaId); // Usar comandaId en lugar de comanda.getId()
             psActualitzarTotal.executeUpdate();
 
             connexio.commit();
@@ -98,7 +125,6 @@ public class ComandaDAO {
                 connexio.rollback();
             }
             System.out.println("Error: " + e.getMessage());
-            throw e;
 
         } finally {
             if (connexio != null)
@@ -106,5 +132,4 @@ public class ComandaDAO {
         }
     }
 
-    
 }
