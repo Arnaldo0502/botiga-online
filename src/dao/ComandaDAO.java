@@ -108,8 +108,6 @@ public class ComandaDAO {
                 }
             }
 
-            // si es 'n', continuar sin descuento
-
             // actualitzar total de la comanda
             String actualitzarTotalSQL = "UPDATE Comandes SET total = ? WHERE id = ?";
             PreparedStatement psActualitzarTotal = connexio.prepareStatement(actualitzarTotalSQL);
