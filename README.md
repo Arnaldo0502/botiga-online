@@ -130,7 +130,3 @@ Les contribucions són benvingudes. Si vols contribuir:
 ## Llicència
 
 Aquest projecte està sota la Llicència MIT. Consulta el fitxer LICENSE per a més detalls.
-
-## Contacte
-
-Per preguntes o suggeriments, contacta amb [el teu correu electrònic] o obre una issue en el repositori.
