@@ -117,16 +117,6 @@ Un cop executada l'aplicació, es mostrarà un menú principal amb les opcions s
 └── 📄 README.md
 ```
 
-## Contribucions
-
-Les contribucions són benvingudes. Si vols contribuir:
-
-1. Fork el projecte.
-2. Crea una branca per la teva funcionalitat (`git checkout -b feature/nova-funcionalitat`).
-3. Commit els canvis (`git commit -am 'Afegeix nova funcionalitat'`).
-4. Push a la branca (`git push origin feature/nova-funcionalitat`).
-5. Obre un Pull Request.
-
 ## Llicència
 
 Aquest projecte està sota la Llicència MIT. Consulta el fitxer LICENSE per a més detalls.
