@@ -6,6 +6,7 @@ import java.util.Scanner;
 import dao.ProducteDAO;
 import dao.ClientDAO;
 import dao.ComandaDAO;
+import dao.ConsultesDAO;
 import model.Producte;
 import model.Client;
 import model.Comanda;
@@ -15,13 +16,16 @@ public class App {
     private static ProducteDAO producteDAO;
     private static ClientDAO clientDAO;
     private static ComandaDAO comandaDAO;
+    private static ConsultesDAO comandaConsultesDAO;
 
     public static void main(String[] args) {
         producteDAO = new ProducteDAO();
         clientDAO = new ClientDAO();
         comandaDAO = new ComandaDAO();
         Scanner sc = new Scanner(System.in);
-        int opcio;
+
+        int opcio = -1;
+
         do {
             System.out.println("===== BOTIGA ONLINE =====");
             System.out.println("1. Gestionar Productes");
@@ -29,8 +33,17 @@ public class App {
             System.out.println("3. Crear Comanda");
             System.out.println("4. Llistar Comandes");
             System.out.println("0. Sortir");
+
             System.out.print("Opció: ");
+
+            // Validación segura
+            while (!sc.hasNextInt()) {
+                System.out.println("Introdueix un número vàlid.");
+                sc.next(); // descartar la entrada inválida
+                System.out.print("Opció: ");
+            }
             opcio = sc.nextInt();
+
             switch (opcio) {
                 case 1:
                     menuProducte(sc);
@@ -42,10 +55,18 @@ public class App {
                     crearComandaMain(sc);
                     break;
                 case 4:
-                    // Consultar JOIN
+                    menuLlistarComandes(sc);
+                    break;
+                case 0:
+                    System.out.println("Sortint de l'aplicació...");
+                    break;
+                default:
+                    System.out.println("Opció no vàlida.");
                     break;
             }
+
         } while (opcio != 0);
+
         sc.close();
     }
 
@@ -59,6 +80,11 @@ public class App {
             System.out.println("4. Eliminar Producte");
             System.out.println("0. Tornar al menú principal");
             System.out.print("Opció: ");
+            while (!sc.hasNextInt()) {
+                System.out.println("Introdueix un número vàlid.");
+                sc.next(); // descartar la entrada inválida
+                System.out.print("Opció: ");
+            }
             opcio = sc.nextInt();
             try {
                 switch (opcio) {
@@ -156,6 +182,11 @@ public class App {
             System.out.println("4. Eliminar Client");
             System.out.println("0. Tornar al menú principal");
             System.out.print("Opció: ");
+            while (!sc.hasNextInt()) {
+                System.out.println("Introdueix un número vàlid.");
+                sc.next(); // descartar la entrada inválida
+                System.out.print("Opció: ");
+            }
             opcio = sc.nextInt();
             try {
                 switch (opcio) {
@@ -259,4 +290,40 @@ public class App {
         }
     }
 
+    public static void menuLlistarComandes(Scanner sc) {
+        comandaConsultesDAO = new ConsultesDAO();
+        int opcio;
+        do {
+            System.out.println("\n===== LLISTAR COMANDES =====");
+            System.out.println("1. Llistar comandes d'un client");
+            System.out.println("2. Mostrar totals amb descomptes aplicats");
+            System.out.println("0. Tornar al menú principal");
+            System.out.print("Opció: ");
+            while (!sc.hasNextInt()) {
+                System.out.println("Introdueix un número vàlid.");
+                sc.next(); // descartar la entrada inválida
+                System.out.print("Opció: ");
+            }
+            opcio = sc.nextInt();
+            try {
+                switch (opcio) {
+                    case 1:
+                        System.out.print("Id del client: ");
+                        int clientId = sc.nextInt();
+                        comandaConsultesDAO.llistarComandesClient(clientId);
+                        break;
+                    case 2:
+                        comandaConsultesDAO.mostrarTotalsAmbDescomptes();
+                        break;
+                    case 0:
+                        System.out.println("Tornant al menú principal...");
+                        break;
+                    default:
+                        System.out.println("Opció no vàlida.");
+                }
+            } catch (SQLException e) {
+                System.out.println("Error en l'operació: " + e.getMessage());
+            }
+        } while (opcio != 0);
+    }
 }
