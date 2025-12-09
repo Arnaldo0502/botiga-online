@@ -11,4 +11,13 @@ public class Connexio {
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
+    public static void main(String[] args) {
+        try (Connection conn = getConnection()) {
+            if (conn != null) {
+                System.out.println("Connexió establerta");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error en establir la connexió: " + e.getMessage());
+        }
+    }
 }

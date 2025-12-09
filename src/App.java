@@ -92,6 +92,14 @@ public class App {
                         System.out.print("Nom del producte: ");
                         String nom = sc.next();
                         System.out.print("Preu del producte: ");
+
+                        //comprovar que el preu és un double vàlid
+                        while (!sc.hasNextDouble()) {
+                            System.out.println("Introdueix un preu vàlid.");
+                            sc.next(); // descartar la entrada inválida
+                            System.out.print("Preu del producte: ");
+                        }
+
                         double preu = sc.nextDouble();
                         System.out.print("Estoc del producte: ");
                         int estoc = sc.nextInt();
