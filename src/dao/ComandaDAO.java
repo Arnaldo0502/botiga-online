@@ -122,6 +122,7 @@ public class ComandaDAO {
             if (connexio != null) {
                 connexio.rollback();
             }
+            connexio.rollback();
             System.out.println("Error: " + e.getMessage());
 
         } finally {
