@@ -154,12 +154,10 @@ public class App {
                                 System.out.println("Estoc no vàlid, mantenint actual.");
                             }
                         }
-                        Producte prodAct = new Producte();
-                        prodAct.setId(idAct);
-                        prodAct.setNom(nouNom);
-                        prodAct.setPreu(nouPreu);
-                        prodAct.setEstoc(nouEstoc);
-                        producteDAO.actualitzar(prodAct);
+                        prodActual.setNom(nouNom);
+                        prodActual.setPreu(nouPreu);
+                        prodActual.setEstoc(nouEstoc);
+                        producteDAO.actualitzar(prodActual);
                         System.out.println("Producte actualitzat correctament.");
                         break;
                     case 4:
@@ -237,11 +235,9 @@ public class App {
                         if (nouEmail.isEmpty()) {
                             nouEmail = cliActual.getEmail();
                         }
-                        Client cliAct = new Client();
-                        cliAct.setId(cliActual.getId());
-                        cliAct.setName(nouNom);
-                        cliAct.setEmail(nouEmail);
-                        clientDAO.actualitzar(cliAct);
+                        cliActual.setName(nouNom);
+                        cliActual.setEmail(nouEmail);
+                        clientDAO.actualitzar(cliActual);
                         System.out.println("Client actualitzat correctament.");
                         break;
                     case 4:
