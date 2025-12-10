@@ -44,11 +44,28 @@ public class ConsultesDAO {
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 int comandaId = rs.getInt("id");
-                double total = rs.getDouble("total");
-                double descompte = calcularDescompte(conn, comandaId);
-                System.out.println("Comanda ID: " + comandaId + ", Client ID: " + rs.getInt("client_id") + ", Data: " + rs.getDate("data") + ", Total Final: " + total + ", Descompte Aplicat: " + descompte);
+                double totalFinal = rs.getDouble("total");
+                double totalInicial = calcularTotalInicial(conn, comandaId);
+                double descompte = totalInicial - totalFinal;
+                System.out.println("Comanda ID: " + comandaId + ", Client ID: " + rs.getInt("client_id") + ", Data: " + rs.getDate("data") + ", Total Inicial: " + totalInicial + ", Descompte Aplicat: " + descompte + ", Total Final: " + totalFinal);
             }
         }
+    }
+
+    private double calcularTotalInicial(Connection conn, int comandaId) throws SQLException {
+        double totalInicial = 0;
+        String sql = "SELECT quantitat, preuUnitari FROM LiniesComanda WHERE comanda_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, comandaId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int quantitat = rs.getInt("quantitat");
+                    double preuUnitari = rs.getDouble("preuUnitari");
+                    totalInicial += quantitat * preuUnitari;
+                }
+            }
+        }
+        return totalInicial;
     }
 
     private double calcularDescompte(Connection conn, int comandaId) throws SQLException {
